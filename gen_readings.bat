@@ -1,0 +1,1 @@
+call python -m catholic_mass_readings get-sunday-mass-range  --start 2025-06-01 --end 2025-12-31 --save mass_readings.json
