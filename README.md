@@ -1,6 +1,8 @@
 # ICFSlides
 Web scraper to automate mass slides
 
+Libraries used is in requirements.txt. Create a python virtual environment (or use global at your own risk) and install libraries and dependencies using `pip install requirements.txt`
+
 Included is scraped bible (New Jerusalem Bible) from https://www.catholic.org/bible/book.php, can be found in bible/bible.json. 0.json - 72.json are each books in the bible. To access the bible's verses, use python
 
 ```
