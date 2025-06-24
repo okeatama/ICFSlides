@@ -1,10 +1,10 @@
-from tutorial.declarations import books, catholic_bible_chapters
+from tutorial.bible_chapters import books, catholic_bible_chapters
 import json
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-with open("mass_readings.json", "r") as file:
+with open("JSON/mass_readings.json", "r") as file:
     readings = json.load(file)
 
 with open("bible/bible.json", "r") as file:
@@ -40,18 +40,25 @@ for i, reading in enumerate(readings):
                 # or just {VERSE_START}-{VERSE_END}, if so then use same chapter
 
                 if ":" not in comma_split:
+                    # some books only have 1 chapter, so chapter is never mentioned
                     chapter = 0
+                
                 
                 chapter_verse = comma_split.split(":")
 
                 if len(chapter_verse) != 1:
                     # chapter given
+                    
                     chapter = int(chapter_verse[0]) - 1
 
                     if "-" not in chapter_verse[1]:
+                        # only one verse
+                        # chapter_verse = [{CHAPTER_NUM}, {VERSE}]
                         verse = chapter_verse[1].strip()
 
                         if not verse.isdigit():
+                            # some use a,b,c to denote which part of the verse, but since there is no logical
+                            # way to cut it off in program, just give the whole verse
                             print(f"WARNING: there is alphabet in verse: {verse}")
                             verse = verse[:-1]
 
@@ -60,11 +67,13 @@ for i, reading in enumerate(readings):
                         text = bible[book_num][chapter][verse]
                         whole_text += text.strip()
                     else:
-
+                        # chapter_verse = [{CHAPTER_NUM}, {VERSE_START}-{VERSE_END}]
                         verse_start, verse_end = chapter_verse[1].split("-")
                         verse_start = verse_start.strip()
                         verse_end = verse_end.strip()
 
+                        # some use a,b,c to denote which part of the verse, but since there is no logical
+                        # way to cut it off in program, just give the whole verse
                         if not verse_start.isdigit():
                             print(f"WARNING: there is alphabet in verse_start, double check: {verse_start}")
                             verse_start = verse_start[:-1]
@@ -79,10 +88,14 @@ for i, reading in enumerate(readings):
                         whole_text += text.strip()
                 else:
                     # no chapter given
+                    # use previous chapter
                     if "-" not in comma_split:
+                        # only 1 verse, so no start-end. comma_split = {VERSE}
                         verse = comma_split.strip()
 
                         if not verse.isdigit():
+                            # some use a,b,c to denote which part of the verse, but since there is no logical
+                            # way to cut it off in program, just give the whole verse
                             print(f"WARNING: there is alphabet in verse: {verse}")
                             verse = verse[:-1]
                         
@@ -91,10 +104,13 @@ for i, reading in enumerate(readings):
                         text = bible[book_num][chapter][verse]
                         whole_text += text.strip()
                     else:
+                        # comma_split = {VERSE_START}-{VERSE_END}
                         verse_start, verse_end = comma_split.split("-")
                         verse_start = verse_start.strip()
                         verse_end = verse_end.strip()
 
+                        # some use a,b,c to denote which part of the verse, but since there is no logical
+                        # way to cut it off in program, just give the whole verse
                         if not verse_start.isdigit():
                             print(f"WARNING: there is alphabet in verse_start: {verse_start}")
                             verse_start = verse_start[:-1]
@@ -110,5 +126,6 @@ for i, reading in enumerate(readings):
 
             readings[i]["sections"][j]["readings"][k]["text"] = whole_text.strip()
     
-with open("updated_mass_readings.json", "w") as file:
+# save into json file
+with open("JSON/updated_mass_readings.json", "w") as file:
     json.dump(readings, file, indent=4)

@@ -1,5 +1,5 @@
 import json
-from tutorial.declarations import books
+from tutorial.bible_chapters import books
 
 bible = []
 

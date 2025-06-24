@@ -305,7 +305,88 @@
     },
     {
         "date": "2025-06-29",
-        "sections": [],
+        "sections": [
+            {
+                "header": "Reading 1",
+                "readings": [
+                    {
+                        "text": "Once, when Peter and John were going up to the Temple for the prayers at the ninth hour, it happened that there was a man being carried past. He was a cripple from birth; and they used to put him down every day near the Temple entrance called the Beautiful Gate so that he could beg from the people going in. When this man saw Peter and John on their way into the Temple he begged from them. Both Peter and John looked straight at him and said, 'Look at us.' He turned to them expectantly, hoping to get something from them, but Peter said, 'I have neither silver nor gold, but I will give you what I have: in the name of Jesus Christ the Nazarene, walk!' Peter then took him by the hand and helped him to stand up. Instantly his feet and ankles became firm, he jumped up, stood, and began to walk, and he went with them into the Temple, walking and jumping and praising God. Everyone could see him walking and praising God, and they recognised him as the man who used to sit begging at the Beautiful Gate of the Temple. They were all astonished and unable to explain what had happened to him.",
+                        "verses": [
+                            {
+                                "book": "Acts",
+                                "link": "https://bible.usccb.org/bible/Isaiah/66?10",
+                                "text": "Acts 3:1-10"
+                            }
+                        ]
+                    }
+                ],
+                "type": "READING"
+            },
+            {
+                "header": "Responsorial Psalm",
+                "readings": [
+                    {
+                        "text": "",
+                        "verses": [
+                            {
+                                "book": "Psalms",
+                                "link": "https://bible.usccb.org/bible/Psalms/66?1",
+                                "text": "Psalm 18(19):2-5"
+                            }
+                        ]
+                    }
+                ],
+                "type": "PSALM"
+            },
+            {
+                "header": "Reading 2",
+                "readings": [
+                    {
+                        "text": "The Good News I preached is not a human message that I was given by men, it is something I learnt only through a revelation of Jesus Christ. You must have heard of my career as a practising Jew, how merciless I was in persecuting the Church of God, how much damage I did to it, how I stood out among other Jews of my generation, and how enthusiastic I was for the traditions of my ancestors.\nThen God, who had specially chosen me while I was still in my mother's womb, called me through his grace and chose to reveal his Son in me, so that I might preach the Good News about him to the pagans. I did not stop to discuss this with any human being, nor did I go up to Jerusalem to see those who were already apostles before me, but I went off to Arabia at once and later went straight back from there to Damascus. Even when after three years I went up to Jerusalem to visit Cephas and stayed with him for fifteen days, I did not see any of the other apostles; I only saw James, the brother of the Lord, and I swear before God that what I have written is the literal truth.",
+                        "verses": [
+                            {
+                                "book": "Galatians",
+                                "link": "https://bible.usccb.org/bible/Galatians/6?14",
+                                "text": "Galatians 1:11-20"
+                            }
+                        ]
+                    }
+                ],
+                "type": "READING"
+            },
+            {
+                "header": "Alleluia",
+                "readings": [
+                    {
+                        "text": "Alleluia, alleluia!\nLord, you know all things;\nyou know that I love you.\nAlleluia!",
+                        "verses": [
+                            {
+                                "book": "John",
+                                "link": "https://bible.usccb.org/bible/Colossians/3?15",
+                                "text": "John 21:17"
+                            }
+                        ]
+                    }
+                ],
+                "type": "ALLELUIA"
+            },
+            {
+                "header": "Gospel",
+                "readings": [
+                    {
+                        "text": "Jesus showed himself to his disciples, and after they had eaten he said to Simon Peter, 'Simon son of John, do you love me more than these others do?' He answered, 'Yes Lord, you know I love you.' Jesus said to him, 'Feed my lambs.' A second time he said to him, 'Simon son of John, do you love me?' He replied, 'Yes, Lord, you know I love you.' Jesus said to him, 'Look after my sheep.' Then he said to him a third time, 'Simon son of John, do you love me?' Peter was upset that he asked him the third time, 'Do you love me?' and said, 'Lord, you know everything; you know I love you.' Jesus said to him, 'Feed my sheep.\n'I tell you most solemnly,\nwhen you were young\nyou put on your own belt\nand walked where you liked;\nbut when you grow old\nyou will stretch out your hands,\nand somebody else will put a belt round you\nand take you where you would rather not go.'\nIn these words he indicated the kind of death by which Peter would give glory to God. After this he said, 'Follow me.'",
+                        "verses": [
+                            {
+                                "book": "John",
+                                "link": "https://bible.usccb.org/bible/luke/10?1",
+                                "text": "John 21:15-19"
+                            }
+                        ]
+                    }
+                ],
+                "type": "GOSPEL"
+            }
+        ],
         "title": "Solemnity of Saints Peter and Paul, Apostles",
         "url": "https://bible.usccb.org/bible/readings/062925.cfm"
     },

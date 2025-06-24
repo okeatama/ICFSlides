@@ -1,10 +1,9 @@
 import scrapy
-import time
-from declarations import catholic_bible_chapters
+from bible_chapters import catholic_bible_chapters
 
-base_url = "https://www.catholic.org/bible/book.php?id="
+BASE_URL = "https://www.catholic.org/bible/book.php?id="
 
-class QuotesSpider(scrapy.Spider):
+class ReadingsSpider(scrapy.Spider):
     name = "readings"
 
     async def start(self):
@@ -17,7 +16,7 @@ class QuotesSpider(scrapy.Spider):
         _, chapter_amount = catholic_bible_chapters[id]
 
         for i in range(1, chapter_amount + 1):
-            urls.append(f"{base_url}{id + 1}&bible_chapter={i}")
+            urls.append(f"{BASE_URL}{id + 1}&bible_chapter={i}")
 
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse)
