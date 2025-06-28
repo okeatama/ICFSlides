@@ -6,11 +6,10 @@ import os
 from urllib.parse import urljoin
 import json
 from constants import *
+import csv
 
 # Target website
 BASE_URL = "https://www.lagumisa.web.id/lagumz.php?&f="
-
-
 
 with open("JSON/calendar.json","r") as file:
     calendar = json.load(file)
@@ -113,6 +112,34 @@ def extract_mass_reading(mass_reading):
     
     return (first_readings, first_verses, psalm_loc, second_readings, second_verses, gospel, gospel_verses)
 
+def create_birthday_slide(prs):
+    with open("data.csv", "r", encoding='utf-8-sig') as file:
+        csv_reader = csv.DictReader(file)
+        dur = timedelta(days=6)
+        from_date = mass_date - dur
+
+        # acceptable values
+        date_range = [str(i) for i in range(from_date.day, mass_date.day + 1)]
+        month_range = set()
+        month_range.add(str(from_date.month))
+        month_range.add(str(mass_date.month))
+
+        acceptable_active = ["Active", "Not Sure"]
+
+        lines = []
+
+        for row in csv_reader:
+            if row["Month"] == "6" and row["Date"] in date_range and row["Active"] in acceptable_active:
+                # birthday in range
+                full_name = f"{row['First Name']} {row['Middle Name']} {row['Last Name']}"
+                line = f"{row['Date']} {NUM_TO_MONTH_ID[int(row['Month'])]}: {full_name}"
+                lines.append(line)
+    
+    bday = prs.slides.add_slide(prs.slide_layouts[11])
+    final_text = f"Bagi Mereka yang berulang tahun pada, {from_date.day} - {mass_date.day} {NUM_TO_MONTH_ID[mass_date.month]}:"
+    final_text = final_text + '\n\n' + '\n'.join(lines)
+    bday.placeholders[10].text = final_text
+
 mass_date = get_next_sunday()
 
 verse = download_images_and_get_verse()
@@ -159,6 +186,7 @@ I estimate readings content only fit around 420-425 letters (including spaces)? 
 """
 # create the presentation
 prs = Presentation("template.pptx")
+create_birthday_slide(prs)
 for i in range(len(first_readings)):
     create_reading_slide(prs, first_readings[i], first_verses[i], "First Reading")
 
