@@ -9,7 +9,7 @@ from constants import *
 import csv
 
 # Target website
-BASE_URL = "https://www.lagumisa.web.id/lagumz.php?&f="
+
 
 with open("JSON/calendar.json","r") as file:
     calendar = json.load(file)
@@ -31,7 +31,7 @@ def download_images_and_get_verse():
     mass_title_id = calendar[mass_date.month][mass_date.strftime("%Y-%m-%d")]
 
     for y in tries:
-        url = f"{BASE_URL}{y}-{mass_title_id}"
+        url = f"{LAGUMISA_BASE_URL}{y}-{mass_title_id}"
 
         # try this url, and search for images in edisibaru
         response = requests.get(url)
@@ -112,14 +112,87 @@ def extract_mass_reading(mass_reading):
     
     return (first_readings, first_verses, psalm_loc, second_readings, second_verses, gospel, gospel_verses)
 
+def extract_universalis():
+    url = f'{UNIVERSALIS_BASE_URL}{mass_date.strftime("%Y%m%d")}/mass.htm'
+
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    texts = soup.find("div", id="texts")
+    content = texts.find("div").get_text()
+    table = texts.find_all("th", align="right") # theres 5 usually, first verse, psalm, second, gospel acclamation, gospel
+
+    # verses
+    first_verse = table[0].get_text()
+    psalm_loc = table[1].get_text()
+    second_verse = table[2].get_text()
+    gospel_verse = table[4].get_text()
+
+    first_reading = ""
+    second_reading = ""
+    gospel = ""
+    # signifies if they have collected first, second and gospel
+    flags = [False, False, False] # first reading second reading, gospel
+
+    line_iter = iter(content.split('\n'))
+    sentinel = object()
+    while True:
+        line = next(line_iter, sentinel)
+        if line is sentinel:
+            # out of iteration
+            break
+
+        if "First reading" in line and not flags[0]:
+            readings = [] # array of strings of line of verses
+            while True:
+                next_line = next(line_iter, sentinel)
+                if (next_line is sentinel) or next_line.strip().startswith("How to listen"):
+                    # break out of the iteration
+                    break
+                readings.append(next_line.strip())
+            
+            first_reading = "\n".join(readings)
+            flags[0] = True
+        elif "Second reading" in line and not flags[1]:
+            readings = []
+            while True:
+                next_line = next(line_iter, sentinel)
+                if (next_line is sentinel) or next_line.strip().startswith("Gospel Acclamation"):
+                    # break out of the iteration
+                    break
+                readings.append(next_line.strip())
+            second_reading = "\n".join(readings)
+            flags[1] = True
+        elif "Gospel Acclamation" in line:
+            # skip over Gospel Acclamation, since this word contains "Gospel"
+            continue
+        elif "Gospel" in line and not flags[2]:
+            readings = []
+            while True:
+                next_line = next(line_iter, sentinel)
+                if (next_line is sentinel) or next_line.strip().startswith("The responsorial psalms"):
+                    # break out of the iteration
+                    break
+                readings.append(next_line.strip())
+            gospel = "\n".join(readings)
+            flags[2] = True
+        
+        if all(flags):
+            # all three has been extracted, no need to go any further
+            break
+    
+    return (first_reading, first_verse, psalm_loc, second_reading, second_verse, gospel, gospel_verse)
+
 def create_birthday_slide(prs):
     with open("data.csv", "r", encoding='utf-8-sig') as file:
         csv_reader = csv.DictReader(file)
-        dur = timedelta(days=6)
-        from_date = mass_date - dur
+        durs = [timedelta(days=i) for i in range(7)]
+        # dur = timedelta(days=6)
+        from_date = mass_date - timedelta(days=6)
 
         # acceptable values
-        date_range = [str(i) for i in range(from_date.day, mass_date.day + 1)]
+        # date_range = [str(i) for i in range(from_date.day, mass_date.day + 1)]
+        date_range = {str((mass_date - dur).day) for dur in durs}
         month_range = set()
         month_range.add(str(from_date.month))
         month_range.add(str(mass_date.month))
@@ -129,7 +202,7 @@ def create_birthday_slide(prs):
         lines = []
 
         for row in csv_reader:
-            if row["Month"] == "6" and row["Date"] in date_range and row["Active"] in acceptable_active:
+            if row["Month"] in month_range and row["Date"] in date_range and row["Active"] in acceptable_active:
                 # birthday in range
                 full_name = f"{row['First Name']} {row['Middle Name']} {row['Last Name']}"
                 line = f"{row['Date']} {NUM_TO_MONTH_ID[int(row['Month'])]}: {full_name}"
@@ -155,7 +228,8 @@ if not mass_reading:
     raise Exception(f"Couldn't find date {mass_date.strftime('%Y-%m-%d')}")
 
 # now do some magic to extract readings, psalm and gospel
-first_readings, first_verses, psalm_loc, second_readings, second_verses, gospel, gospel_verses = extract_mass_reading(mass_reading)
+# first_readings, first_verses, psalm_loc, second_readings, second_verses, gospel, gospel_verses = extract_mass_reading(mass_reading)
+first_reading, first_verse, psalm_loc, second_reading, second_verse, gospel, gospel_verse = extract_universalis()
 
 """
 pptx stuff
@@ -187,17 +261,14 @@ I estimate readings content only fit around 420-425 letters (including spaces)? 
 # create the presentation
 prs = Presentation("template.pptx")
 create_birthday_slide(prs)
-for i in range(len(first_readings)):
-    create_reading_slide(prs, first_readings[i], first_verses[i], "First Reading")
+create_reading_slide(prs, first_reading, first_verse, "First Reading")
 
 create_resp_psalm_slide(prs, psalm_loc)
 
-for i in range(len(second_readings)):
-    create_reading_slide(prs, second_readings[i], second_verses[i], "Second Reading")
+create_reading_slide(prs, second_reading, second_verse, "Second Reading")
 
 create_gospel_acclamation_slide(prs, verse)
 
-for i in range(len(gospel)):
-    create_gospel_slide(prs, gospel[i], gospel_verses[i])
+create_gospel_slide(prs, gospel, gospel_verse)
 pptxfilename = mass_date.strftime("%Y%m%d")
 prs.save(f"{pptxfilename}.pptx")
