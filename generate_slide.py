@@ -202,9 +202,11 @@ def create_birthday_slide(prs):
         lines = []
 
         for row in csv_reader:
-            if row["Month"] in month_range and row["Date"] in date_range and row["Active"] in acceptable_active:
+            # if row["Month"] in month_range and row["Date"] in date_range and row["Active"] in acceptable_active:
+            if row["Month"] in month_range and row["Date"] in date_range:
                 # birthday in range
-                full_name = f"{row['First Name']} {row['Middle Name']} {row['Last Name']}"
+                # full_name = f"{row['First Name']} {row['Middle Name']} {row['Last Name']}"
+                full_name = f"{row['Full Name'].strip()}"
                 line = f"{row['Date']} {NUM_TO_MONTH_ID[int(row['Month'])]}: {full_name}"
                 lines.append(line)
     

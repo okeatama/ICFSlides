@@ -1,0 +1,1 @@
+call .\.venv\Scripts\python.exe .\generate_slide.py
