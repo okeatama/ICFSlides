@@ -196,6 +196,6 @@ cython_debug/
 # Project specific (added by me)
 images/
 data.csv
-test.ipynb
 test.pptx
+~$*
 2025*.pptx

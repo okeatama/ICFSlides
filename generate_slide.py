@@ -26,6 +26,7 @@ def get_next_sunday():
     return today + timedelta(days=days_ahead)
 
 def download_images_and_get_verse():
+    # returns ([mazmurs], ayat): ([String], String)
     # download responsorial psalm and gospel acclamation images
     
     mass_title_id = calendar[mass_date.month][mass_date.strftime("%Y-%m-%d")]
@@ -53,35 +54,89 @@ def download_images_and_get_verse():
                 f.write(img_data)
             print(f"Downloaded {FILENAMES[i]}")
 
-        presyair = edisibaru.find_all("pre", class_="presyair")[-1]
-        return "\n".join(presyair.text.split('\n')[2:])
+        # get mazmur and ayat
+        # [2:] since there is `Mazmur (oleh pemazmur):\n\n` and `Ayat (oleh solis):\n\n`
+        presyair = edisibaru.find_all("pre", class_="presyair")
+        mazmur_raw = "\n".join(presyair[0].text.split('\n')[2:])
+        mazmur_split = mazmur_raw.split("\n\n")
+        mazmur = [m[3:] for m in mazmur_split] # [3:] to remove first 3 letters, which are 1. , 2. , 3. , etc
 
-def create_reading_slide(prs, content, bible_loc, title):
-    reading = prs.slides.add_slide(prs.slide_layouts[7])
+        ayat = "\n".join(presyair[1].text.split('\n')[2:])
+        return (mazmur, ayat)
+
+def create_birthday_slide(prs):
+    with open("data.csv", "r", encoding='utf-8-sig') as file:
+        csv_reader = csv.DictReader(file)
+        durs = [timedelta(days=i) for i in range(7)]
+        # dur = timedelta(days=6)
+        from_date = mass_date - timedelta(days=6)
+
+        # acceptable values
+        # date_range = [str(i) for i in range(from_date.day, mass_date.day + 1)]
+        date_range = {str((mass_date - dur).day) for dur in durs}
+        month_range = set()
+        month_range.add(str(from_date.month))
+        month_range.add(str(mass_date.month))
+
+        acceptable_active = ["Active", "Not Sure"]
+
+        lines = []
+
+        for row in csv_reader:
+            # if row["Month"] in month_range and row["Date"] in date_range and row["Active"] in acceptable_active:
+            if row["Month"] in month_range and row["Date"] in date_range:
+                # birthday in range
+                # full_name = f"{row['First Name']} {row['Middle Name']} {row['Last Name']}"
+                full_name = f"{row['Full Name'].strip()}"
+                line = f"{row['Date']} {NUM_TO_MONTH_ID[int(row['Month'])]}: {full_name}"
+                lines.append(line)
+    
+    bday = prs.slides.add_slide(prs.slide_layouts[BIRTHDAY_LAYOUT])
+    final_text = f"Bagi Mereka yang berulang tahun pada, {from_date.day} - {mass_date.day} {NUM_TO_MONTH_ID[mass_date.month]}:"
+    final_text = final_text + '\n\n' + '\n'.join(lines)
+    bday.placeholders[BIRTHDAY_PLACEHOLDER].text = final_text
+
+def create_first_reading_slide(prs, content_id, content_en, bible_loc):
+    reading = prs.slides.add_slide(prs.slide_layouts[FIRST_READING_LAYOUT])
     if len(content) > SLIDE_CONTENT_THRESHOLD:
         create_reading_slide(prs, content[SLIDE_CONTENT_THRESHOLD + 1:], bible_loc, title)
         content = content[:SLIDE_CONTENT_THRESHOLD + 1]
-    reading.placeholders[10].text = content
-    reading.placeholders[11].text = bible_loc
-    reading.placeholders[12].text = title
+    reading.placeholders[FIRST_READING_INDO].text = content_id
+    reading.placeholders[FIRST_READING_EN].text = content_en
+    reading.placeholders[FIRST_READING_VERSES].text = bible_loc
+    
 
-def create_gospel_slide(prs, content, bible_loc):
-    gospel = prs.slides.add_slide(prs.slide_layouts[10])
+def create_second_reading_slide(prs, content_id, content_en, bible_loc):
+    reading = prs.slides.add_slide(prs.slide_layouts[SECOND_READING_LAYOUT])
+    if len(content) > SLIDE_CONTENT_THRESHOLD:
+        create_reading_slide(prs, content[SLIDE_CONTENT_THRESHOLD + 1:], bible_loc, title)
+        content = content[:SLIDE_CONTENT_THRESHOLD + 1]
+    reading.placeholders[SECOND_READING_INDO].text = content_id
+    reading.placeholders[SECOND_READING_EN].text = content_en
+    reading.placeholders[SECOND_READING_VERSES].text = bible_loc
+
+
+def create_gospel_slide(prs, content_id, content_en, bible_loc):
+    gospel = prs.slides.add_slide(prs.slide_layouts[GOSPEL_LAYOUT])
     if len(content) > SLIDE_CONTENT_THRESHOLD: 
         create_gospel_slide(prs, content[SLIDE_CONTENT_THRESHOLD + 1:], bible_loc)
         content = content[:SLIDE_CONTENT_THRESHOLD + 1]
-    gospel.placeholders[10].text = content
-    gospel.placeholders[11].text = bible_loc
+    gospel.placeholders[GOSPEL_INDO].text = content_id
+    gospel.placeholders[GOSPEL_EN].text = content_en
+    gospel.placeholders[GOSPEL_VERSES].text = bible_loc
 
-def create_resp_psalm_slide(prs, bible_loc):
-    responsorial_psalm = prs.slides.add_slide(prs.slide_layouts[8])
-    responsorial_psalm.placeholders[11].text = bible_loc
-    responsorial_psalm.placeholders[12].insert_picture(f"images/{FILENAMES[0]}")
+def create_resp_psalm_slide(prs, bible_loc, text_id, text_en):
+    responsorial_psalm = prs.slides.add_slide(prs.slide_layouts[PSALM_LAYOUT])
+    responsorial_psalm.placeholders[PSALM_VERSES].text = bible_loc
+    responsorial_psalm.placeholders[PSALM_IMAGE].insert_picture(f"images/{FILENAMES[0]}")
+    responsorial_psalm.placeholders[PSALM_TEXT_EN].text = text_en
+    responsorial_psalm.placeholders[PSALM_TEXT_INDO].text = text_id
 
-def create_gospel_acclamation_slide(prs, verse):
-    gospel_acclamation = prs.slides.add_slide(prs.slide_layouts[9])
-    gospel_acclamation.placeholders[12].insert_picture(f"images/{FILENAMES[1]}")
-    gospel_acclamation.placeholders[13].text = verse
+def create_gospel_acclamation_slide(prs, verse_id, verse_en):
+    gospel_acclamation = prs.slides.add_slide(prs.slide_layouts[GOSPEL_ACCLAMATION_LAYOUT])
+    gospel_acclamation.placeholders[GOSPEL_ACCLAMATION_IMAGE].insert_picture(f"images/{FILENAMES[1]}")
+    gospel_acclamation.placeholders[GOSPEL_ACCLAMATION_TEXT_INDO].text = verse_id
+    gospel_acclamation.placeholders[GOSPEL_ACCLAMATION_TEXT_EN].text = verse_en
 
 # returns nothing, this use global var
 def extract_mass_reading(mass_reading):
@@ -183,41 +238,10 @@ def extract_universalis():
     
     return (first_reading, first_verse, psalm_loc, second_reading, second_verse, gospel, gospel_verse)
 
-def create_birthday_slide(prs):
-    with open("data.csv", "r", encoding='utf-8-sig') as file:
-        csv_reader = csv.DictReader(file)
-        durs = [timedelta(days=i) for i in range(7)]
-        # dur = timedelta(days=6)
-        from_date = mass_date - timedelta(days=6)
-
-        # acceptable values
-        # date_range = [str(i) for i in range(from_date.day, mass_date.day + 1)]
-        date_range = {str((mass_date - dur).day) for dur in durs}
-        month_range = set()
-        month_range.add(str(from_date.month))
-        month_range.add(str(mass_date.month))
-
-        acceptable_active = ["Active", "Not Sure"]
-
-        lines = []
-
-        for row in csv_reader:
-            # if row["Month"] in month_range and row["Date"] in date_range and row["Active"] in acceptable_active:
-            if row["Month"] in month_range and row["Date"] in date_range:
-                # birthday in range
-                # full_name = f"{row['First Name']} {row['Middle Name']} {row['Last Name']}"
-                full_name = f"{row['Full Name'].strip()}"
-                line = f"{row['Date']} {NUM_TO_MONTH_ID[int(row['Month'])]}: {full_name}"
-                lines.append(line)
-    
-    bday = prs.slides.add_slide(prs.slide_layouts[11])
-    final_text = f"Bagi Mereka yang berulang tahun pada, {from_date.day} - {mass_date.day} {NUM_TO_MONTH_ID[mass_date.month]}:"
-    final_text = final_text + '\n\n' + '\n'.join(lines)
-    bday.placeholders[10].text = final_text
-
 mass_date = get_next_sunday()
 
 verse = download_images_and_get_verse()
+""" 
 mass_reading = None
 
 # find mass_reading for mass date
@@ -228,46 +252,23 @@ for i, r in enumerate(mass_readings):
 
 if not mass_reading:
     raise Exception(f"Couldn't find date {mass_date.strftime('%Y-%m-%d')}")
-
 # now do some magic to extract readings, psalm and gospel
-# first_readings, first_verses, psalm_loc, second_readings, second_verses, gospel, gospel_verses = extract_mass_reading(mass_reading)
+first_readings, first_verses, psalm_loc, second_readings, second_verses, gospel, gospel_verses = extract_mass_reading(mass_reading)
+"""
+
+# scrape from universalis
 first_reading, first_verse, psalm_loc, second_reading, second_verse, gospel, gospel_verse = extract_universalis()
 
-"""
-pptx stuff
-=============================================================
-slide_layouts[7] is Readings
-slide_layouts[8] is responsorial Psalm
-slide_layouts[9] is Gospel Acclamation
-slide_layouts[10] is Gospel
+# I estimate readings content only fit around 420-425 letters (including spaces)
 
-for slide_layouts[7] (Readings):
-placeholders[10] is the actual reading
-placeholders[11] is Book Chapter:verse
-placeholders[12] is First Reading/Second Reading/Gospel
-
-for slide_layouts[8] (responsorial Psalm):
-placeholders[11] is Psalm Chapter:verse
-placeholders[12] is the picture, use insert_picture("test.png")
-
-for slide_layouts[9] (Gospel Acclamation):
-placeholders[12] is the picture, use insert_picture("test.png")
-placeholders[13] is the verse
-
-for slide_layouts[10] (Gospel):
-placeholders[10] is the actual reading
-placeholders[11] is Book Chapter:verse
-
-I estimate readings content only fit around 420-425 letters (including spaces)? Need to check more
-"""
 # create the presentation
 prs = Presentation("template.pptx")
 create_birthday_slide(prs)
-create_reading_slide(prs, first_reading, first_verse, "First Reading")
+create_first_reading_slide(prs, first_reading, first_verse)
 
 create_resp_psalm_slide(prs, psalm_loc)
 
-create_reading_slide(prs, second_reading, second_verse, "Second Reading")
+create_second_reading_slide(prs, second_reading, second_verse)
 
 create_gospel_acclamation_slide(prs, verse)
 
