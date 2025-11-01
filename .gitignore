@@ -194,7 +194,14 @@ cython_debug/
 .cursorindexingignore
 
 # Project specific (added by me)
-images/
+resources/data.csv
+resources/dataOLD.csv
+resources/gospel_acclamation.png
+resources/responsorial_psalm.png
+resources/templateOLD.pptx
+resources/template.pptx
+resources/SlideTemplate.pptx
+resources/SlideTemplateOLD.pptx
 data.csv
 test.pptx
 ~$*

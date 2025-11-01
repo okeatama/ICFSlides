@@ -3,11 +3,12 @@ LITURGY_YEAR = "c" # just gonna hard code this since it changes not by year, but
 # try liturgy year, then a (since lagumisa uses a for special mass) then p for perayaan
 tries = [LITURGY_YEAR, "a", "p"] 
 FILENAMES = ["responsorial_psalm.png", "gospel_acclamation.png"] 
-SLIDE_CONTENT_THRESHOLD = 375
+# for readings, how many letters per slide approximately
+SLIDE_CONTENT_THRESHOLD = 240
 
 NUM_TO_MONTH_ID = ["", "Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
 
-UNIVERSALIS_BASE_URL = "https://universalis.com/australia/"
+UNIVERSALIS_BASE_URL = "https://universalis.com/australia.brisbane/"
 LAGUMISA_BASE_URL = "https://www.lagumisa.web.id/lagumz.php?&f="
 IMANKATOLIK_BASE_URL = "https://imankatolik.or.id" # e.g. https://imankatolik.or.id/kalender.php?b=11&t=2025
 
@@ -18,6 +19,7 @@ SECOND_READING_LAYOUT = 2
 GOSPEL_LAYOUT = 3
 PSALM_LAYOUT = 4
 GOSPEL_ACCLAMATION_LAYOUT = 5
+WARNING_LAYOUT = 6
 
 # placeholders index
 BIRTHDAY_PLACEHOLDER = 10
@@ -42,3 +44,5 @@ PSALM_TEXT_EN = 13
 GOSPEL_ACCLAMATION_IMAGE = 10
 GOSPEL_ACCLAMATION_TEXT_INDO = 11
 GOSPEL_ACCLAMATION_TEXT_EN = 12
+
+WARNING_TEXT = 10

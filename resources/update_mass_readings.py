@@ -4,10 +4,10 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
-with open("JSON/mass_readings.json", "r") as file:
+with open("../JSON/mass_readings.json", "r") as file:
     readings = json.load(file)
 
-with open("bible/bible.json", "r") as file:
+with open("../bible/bible.json", "r") as file:
     bible = json.load(file)
 
 accepted_types = ["READING", "GOSPEL"]
@@ -127,5 +127,5 @@ for i, reading in enumerate(readings):
             readings[i]["sections"][j]["readings"][k]["text"] = whole_text.strip()
     
 # save into json file
-with open("JSON/updated_mass_readings.json", "w") as file:
+with open("../JSON/updated_mass_readings.json", "w") as file:
     json.dump(readings, file, indent=4)

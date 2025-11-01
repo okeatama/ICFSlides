@@ -17,7 +17,7 @@ def roman_to_int(s):
             prev_value = value
     return total
 
-with open("JSON/calendar.json","r") as file:
+with open("../JSON/calendar.json","r") as file:
     calendar = json.load(file)
 
 for month in calendar:
@@ -29,5 +29,5 @@ for month in calendar:
 
         month[k] = new_v
 
-with open("JSON/calendar.json", "w") as file:
+with open("../JSON/calendar.json", "w") as file:
     json.dump(calendar, file, indent=4)
